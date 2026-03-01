@@ -1,27 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, MinusCircle, Trash2, User, Fuel, Store, HelpCircle, Lock, CheckCircle } from 'lucide-react';
-
-interface Opening {
-    id: number;
-    date: string;
-    location: string;
-    status?: string; // open | closed
-}
-
-interface Product {
-    id: number;
-    name: string;
-    cost_price: number;
-}
-
-interface Transaction {
-    id: number;
-    type: 'sales' | 'expense';
-    item_name: string;
-    amount: number;
-    cost: number;
-    quantity: number;
-}
+import * as db from '../db';
 
 const EXPENSE_CATEGORIES = [
     { id: 'labor', name: '人件費', icon: User },
@@ -31,10 +10,10 @@ const EXPENSE_CATEGORIES = [
 ];
 
 export const InputTransactions: React.FC = () => {
-    const [openings, setOpenings] = useState<Opening[]>([]);
-    const [products, setProducts] = useState<Product[]>([]);
+    const [openings, setOpenings] = useState<db.Opening[]>([]);
+    const [products, setProducts] = useState<db.Product[]>([]);
     const [selectedOpeningId, setSelectedOpeningId] = useState<string>('');
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [transactions, setTransactions] = useState<db.Transaction[]>([]);
 
     // Forms
     const [salesForm, setSalesForm] = useState({ productId: '', quantity: 1, price: '' });
@@ -73,8 +52,8 @@ export const InputTransactions: React.FC = () => {
 
     const fetchOpenings = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/openings');
-            if (res.ok) setOpenings(await res.json());
+            const data = await db.getOpenings();
+            setOpenings(data);
         } catch (e) {
             console.error(e);
         }
@@ -82,8 +61,8 @@ export const InputTransactions: React.FC = () => {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/products');
-            if (res.ok) setProducts(await res.json());
+            const data = await db.getProducts();
+            setProducts(data);
         } catch (e) {
             console.error(e);
         }
@@ -91,8 +70,8 @@ export const InputTransactions: React.FC = () => {
 
     const fetchTransactions = async (openingId: string) => {
         try {
-            const res = await fetch(`http://localhost:3001/api/transactions/${openingId}`);
-            if (res.ok) setTransactions(await res.json());
+            const data = await db.getTransactions(parseInt(openingId));
+            setTransactions(data);
         } catch (e) {
             console.error(e);
         }
@@ -112,7 +91,7 @@ export const InputTransactions: React.FC = () => {
                 type: 'sales',
                 item_name: product.name,
                 amount: parseInt(salesForm.price),
-                cost: product.cost_price, // Save unit cost at time of sale
+                cost: product.cost_price,
                 quantity: salesForm.quantity
             });
             setSalesForm({ productId: '', quantity: 1, price: '' });
@@ -121,7 +100,6 @@ export const InputTransactions: React.FC = () => {
             // Set Mode
             if (!selectedOpeningId || !setForm.name || !setForm.price || setForm.selectedProductIds.length === 0) return;
 
-            // Calculate total cost of selected products
             const totalSetCost = setForm.selectedProductIds.reduce((sum, id) => {
                 const product = products.find(p => p.id === id);
                 return sum + (product ? product.cost_price : 0);
@@ -145,7 +123,6 @@ export const InputTransactions: React.FC = () => {
         }
     };
 
-    // Toggle check for set products
     const toggleSetProduct = (id: number) => {
         setSetForm(prev => {
             const isSelected = prev.selectedProductIds.includes(id);
@@ -205,16 +182,17 @@ export const InputTransactions: React.FC = () => {
         setGasPricePerLiter('');
     };
 
-    const saveTransaction = async (data: any) => {
+    const saveTransaction = async (data: {
+        opening_id: number;
+        type: 'sales' | 'expense';
+        item_name: string;
+        amount: number;
+        cost: number;
+        quantity: number;
+    }) => {
         try {
-            const res = await fetch('http://localhost:3001/api/transactions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            if (res.ok) {
-                fetchTransactions(selectedOpeningId);
-            }
+            await db.addTransaction(data);
+            fetchTransactions(selectedOpeningId);
         } catch (error) {
             console.error(error);
         }
@@ -223,7 +201,7 @@ export const InputTransactions: React.FC = () => {
     const handleDelete = async (id: number) => {
         if (!window.confirm('この項目を削除しますか？')) return;
         try {
-            await fetch(`http://localhost:3001/api/transactions/${id}`, { method: 'DELETE' });
+            await db.deleteTransaction(id);
             fetchTransactions(selectedOpeningId);
         } catch (error) {
             console.error(error);
@@ -234,16 +212,11 @@ export const InputTransactions: React.FC = () => {
         if (!window.confirm('この出店を「締め」ますか？\n締めると、以降は編集ができなくなります。')) return;
 
         try {
-            const res = await fetch(`http://localhost:3001/api/openings/${selectedOpeningId}/close`, {
-                method: 'PUT'
-            });
-            if (res.ok) {
-                // Refresh local data
-                setOpenings(prev => prev.map(op =>
-                    op.id === parseInt(selectedOpeningId) ? { ...op, status: 'closed' } : op
-                ));
-                alert('締め処理が完了しました。');
-            }
+            await db.closeOpening(parseInt(selectedOpeningId));
+            setOpenings(prev => prev.map(op =>
+                op.id === parseInt(selectedOpeningId) ? { ...op, status: 'closed' } : op
+            ));
+            alert('締め処理が完了しました。');
         } catch (e) {
             console.error(e);
             alert('エラーが発生しました');
@@ -643,7 +616,6 @@ export const InputTransactions: React.FC = () => {
                                         </div>
                                     )}
 
-                                    {/* Amount Input */}
                                     {/* Amount Input */}
                                     {!((expenseCategory === 'rent' && rentType === 'rate') || (expenseCategory === 'gas' && gasMethod === 'calc')) && (
                                         <div>

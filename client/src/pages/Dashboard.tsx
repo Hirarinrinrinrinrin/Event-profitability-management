@@ -1,24 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, Lock, AlertCircle } from 'lucide-react';
-
-interface OpeningStats {
-    id: number;
-    date: string;
-    location: string;
-    status?: string;
-    sales: number;
-    cogs: number;
-    expenses: number;
-}
-
-interface YearStatus {
-    year: number;
-    status: string; // 'open' | 'closed'
-}
+import * as db from '../db';
 
 export const Dashboard: React.FC = () => {
-    const [stats, setStats] = useState<OpeningStats[]>([]);
-    const [years, setYears] = useState<YearStatus[]>([]);
+    const [stats, setStats] = useState<db.OpeningStats[]>([]);
+    const [years, setYears] = useState<db.YearStatus[]>([]);
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
     useEffect(() => {
@@ -31,26 +17,19 @@ export const Dashboard: React.FC = () => {
 
     const fetchYears = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/years');
-            if (res.ok) {
-                const data = await res.json();
-                setYears(data);
-                if (data.length > 0 && !data.find((y: any) => y.year === selectedYear)) {
-                    setSelectedYear(data[0].year);
-                }
+            const data = await db.getYears();
+            setYears(data);
+            if (data.length > 0 && !data.find((y) => y.year === selectedYear)) {
+                setSelectedYear(data[0].year);
             }
         } catch (e) { console.error(e); }
     };
 
     const fetchStats = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/openings/stats');
-            if (res.ok) {
-                const allStats: OpeningStats[] = await res.json();
-                // Filter by selected Year
-                const filtered = allStats.filter(s => new Date(s.date).getFullYear() === selectedYear);
-                setStats(filtered);
-            }
+            const allStats = await db.getOpeningsStats();
+            const filtered = allStats.filter(s => new Date(s.date).getFullYear() === selectedYear);
+            setStats(filtered);
         } catch (e) {
             console.error(e);
         }
@@ -59,9 +38,7 @@ export const Dashboard: React.FC = () => {
     // Calculate Aggregates
     const totalSales = stats.reduce((sum, s) => sum + s.sales, 0);
     const totalExpenses = stats.reduce((sum, s) => sum + s.expenses, 0);
-    const totalCogs = stats.reduce((sum, s) => sum + s.cogs, 0); // Cost of Goods Sold
-
-    // Profit = Sales - COGS - Expenses
+    const totalCogs = stats.reduce((sum, s) => sum + s.cogs, 0);
     const totalProfit = totalSales - totalCogs - totalExpenses;
 
     const currentYearStatus = years.find(y => y.year === selectedYear)?.status;
@@ -70,11 +47,9 @@ export const Dashboard: React.FC = () => {
     const handleYearClose = async () => {
         if (!window.confirm(`${selectedYear}年度を締めますか？\n締めた年度は後から編集できなくなります（実装上はまだ制限なし）。`)) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/years/${selectedYear}/close`, { method: 'POST' });
-            if (res.ok) {
-                fetchYears();
-                alert(`${selectedYear}年度を締めました。`);
-            }
+            await db.closeYear(selectedYear);
+            fetchYears();
+            alert(`${selectedYear}年度を締めました。`);
         } catch (e) {
             console.error(e);
             alert('エラーが発生しました');

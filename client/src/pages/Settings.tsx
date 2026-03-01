@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Trash2, AlertTriangle, ArrowRight, Save } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Trash2, AlertTriangle, ArrowRight, Save, Download, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-interface YearStatus {
-    year: number;
-    status: string;
-}
+import * as db from '../db';
 
 export const Settings: React.FC = () => {
     const navigate = useNavigate();
-    const [years, setYears] = useState<YearStatus[]>([]);
+    const [years, setYears] = useState<db.YearStatus[]>([]);
     const [selectedYearToDelete, setSelectedYearToDelete] = useState<string>('');
     const [startYear, setStartYear] = useState<number>(new Date().getFullYear());
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         fetchYears();
@@ -19,11 +16,8 @@ export const Settings: React.FC = () => {
 
     const fetchYears = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/years');
-            if (res.ok) {
-                const data = await res.json();
-                setYears(data);
-            }
+            const data = await db.getYears();
+            setYears(data);
         } catch (e) { console.error(e); }
     };
 
@@ -31,10 +25,8 @@ export const Settings: React.FC = () => {
         if (!window.confirm('本当に全ての商品データを削除しますか？\nこの操作は取り消せません。')) return;
 
         try {
-            const res = await fetch('http://localhost:3001/api/products/all/reset', { method: 'DELETE' });
-            if (res.ok) {
-                alert('商品データを初期化しました。');
-            }
+            await db.resetProducts();
+            alert('商品データを初期化しました。');
         } catch (e) {
             console.error(e);
             alert('エラーが発生しました');
@@ -46,12 +38,10 @@ export const Settings: React.FC = () => {
         if (!window.confirm(`${selectedYearToDelete}年度の売上・経費・利益データを全て削除しますか？\n締め情報も削除されます。\nこの操作は取り消せません。`)) return;
 
         try {
-            const res = await fetch(`http://localhost:3001/api/years/${selectedYearToDelete}/data`, { method: 'DELETE' });
-            if (res.ok) {
-                alert(`${selectedYearToDelete}年度のデータを初期化しました。`);
-                fetchYears();
-                setSelectedYearToDelete('');
-            }
+            await db.deleteYearData(parseInt(selectedYearToDelete));
+            alert(`${selectedYearToDelete}年度のデータを初期化しました。`);
+            fetchYears();
+            setSelectedYearToDelete('');
         } catch (e) {
             console.error(e);
             alert('エラーが発生しました');
@@ -59,20 +49,49 @@ export const Settings: React.FC = () => {
     };
 
     const handleSetStartYear = () => {
-        // Since we don't have a specific backend setting for "Global Start Year",
-        // we will simulate this by ensuring the dashboard knows about it or simply navigating there.
-        // For now, we'll navigate to the dashboard (which defaults to current year or latest).
-        // If the user wants to "Start" a new year, they just register an opening for that year.
-        // However, the request says "Choose which year to start from after initialization".
-        // We can fulfill this by navigating to the Dashboard with that year pre-selected (via query param or state? Dashboard handles state internally).
-        // Let's just navigate to home, and tell the user they can start registering.
-
-        // Actually, let's allow them to jump to Register Opening with the start date set to Jan 1st of that year?
-        // Or simply navigate to Dashboard. Dashboard selects latest year.
-        // If data is clear, Dashboard shows nothing.
-        // Let's just give a visual feedback.
         alert(`${startYear}年度から開始します。\n「出店登録」から新しい年度の活動を開始してください。`);
         navigate('/register');
+    };
+
+    // --- Backup & Restore ---
+    const handleExport = async () => {
+        try {
+            const jsonData = await db.exportAllData();
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `shutten-note-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('バックアップファイルをダウンロードしました。');
+        } catch (e) {
+            console.error(e);
+            alert('エクスポートに失敗しました。');
+        }
+    };
+
+    const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!window.confirm('現在のデータは全て上書きされます。\n本当にインポートしますか？')) {
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            return;
+        }
+
+        try {
+            const text = await file.text();
+            await db.importAllData(text);
+            alert('データをインポートしました。ページを再読み込みします。');
+            window.location.reload();
+        } catch (e) {
+            console.error(e);
+            alert('インポートに失敗しました。ファイルの形式を確認してください。');
+        }
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     return (
@@ -82,6 +101,54 @@ export const Settings: React.FC = () => {
                 <p style={{ color: 'var(--color-text-sub)' }}>
                     アプリケーションの初期化や管理を行います。
                 </p>
+            </div>
+
+            {/* Backup & Restore */}
+            <div className="card" style={{ borderLeft: '6px solid var(--color-primary)' }}>
+                <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)' }}>
+                    <Download /> データのバックアップ・復元
+                </h2>
+                <p style={{ marginTop: '8px', marginBottom: '16px' }}>
+                    端末変更時などにデータを移行できます。
+                </p>
+
+                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                    <button
+                        onClick={handleExport}
+                        className="bg-navy"
+                        style={{
+                            padding: '12px 24px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <Download size={18} /> バックアップ (エクスポート)
+                    </button>
+
+                    <label style={{
+                        padding: '12px 24px',
+                        backgroundColor: '#f3f4f6',
+                        color: '#4b5563',
+                        borderRadius: '8px',
+                        fontWeight: 'bold',
+                        border: '1px solid #d1d5db',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '18px'
+                    }}>
+                        <Upload size={18} /> 復元 (インポート)
+                        <input
+                            type="file"
+                            accept=".json"
+                            onChange={handleImport}
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                        />
+                    </label>
+                </div>
             </div>
 
             {/* Product Reset */}

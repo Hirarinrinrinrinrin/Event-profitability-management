@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Edit2, X } from 'lucide-react';
-
-interface Product {
-    id: number;
-    name: string;
-    cost_price: number;
-}
+import * as db from '../db';
 
 export const ProductMaster: React.FC = () => {
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<db.Product[]>([]);
     const [formData, setFormData] = useState({
         name: '',
         cost_price: ''
@@ -22,11 +17,8 @@ export const ProductMaster: React.FC = () => {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/products');
-            if (res.ok) {
-                const data = await res.json();
-                setProducts(data);
-            }
+            const data = await db.getProducts();
+            setProducts(data);
         } catch (error) {
             console.error('Failed to fetch products', error);
         } finally {
@@ -41,32 +33,20 @@ export const ProductMaster: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const url = editingId
-                ? `http://localhost:3001/api/products/${editingId}`
-                : 'http://localhost:3001/api/products';
-
-            const method = editingId ? 'PUT' : 'POST';
-
-            const res = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: formData.name,
-                    cost_price: parseInt(formData.cost_price)
-                })
-            });
-
-            if (res.ok) {
-                setFormData({ name: '', cost_price: '' });
-                setEditingId(null);
-                fetchProducts(); // Refresh list
+            if (editingId) {
+                await db.updateProduct(editingId, formData.name, parseInt(formData.cost_price));
+            } else {
+                await db.addProduct(formData.name, parseInt(formData.cost_price));
             }
+            setFormData({ name: '', cost_price: '' });
+            setEditingId(null);
+            fetchProducts();
         } catch (error) {
             console.error('Failed to save product', error);
         }
     };
 
-    const handleEdit = (product: Product) => {
+    const handleEdit = (product: db.Product) => {
         setEditingId(product.id);
         setFormData({
             name: product.name,
@@ -82,7 +62,7 @@ export const ProductMaster: React.FC = () => {
     const handleDelete = async (id: number) => {
         if (!window.confirm('この商品を削除しますか？')) return;
         try {
-            await fetch(`http://localhost:3001/api/products/${id}`, { method: 'DELETE' });
+            await db.deleteProduct(id);
             fetchProducts();
         } catch (error) {
             console.error('Failed to delete product', error);

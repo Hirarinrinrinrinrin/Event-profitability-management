@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Clock, Trash2, Edit2, X } from 'lucide-react';
-
-interface Opening {
-    id: number;
-    date: string;
-    location: string;
-    start_time: string;
-    end_time: string;
-    status: string;
-}
+import * as db from '../db';
 
 export const RegisterOpening: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -19,7 +11,7 @@ export const RegisterOpening: React.FC = () => {
     });
     const [editingId, setEditingId] = useState<number | null>(null);
     const [status, setStatus] = useState<string | null>(null);
-    const [openings, setOpenings] = useState<Opening[]>([]);
+    const [openings, setOpenings] = useState<db.Opening[]>([]);
 
     useEffect(() => {
         fetchOpenings();
@@ -27,11 +19,8 @@ export const RegisterOpening: React.FC = () => {
 
     const fetchOpenings = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/openings');
-            if (res.ok) {
-                const data: Opening[] = await res.json();
-                setOpenings(data.filter(op => op.status !== 'closed'));
-            }
+            const data = await db.getOpenings();
+            setOpenings(data.filter(op => op.status !== 'closed'));
         } catch (e) { console.error(e); }
     };
 
@@ -43,40 +32,28 @@ export const RegisterOpening: React.FC = () => {
         e.preventDefault();
         setStatus('saving');
         try {
-            const url = editingId
-                ? `http://localhost:3001/api/openings/${editingId}`
-                : 'http://localhost:3001/api/openings';
-            const method = editingId ? 'PUT' : 'POST';
-
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (response.ok) {
-                setStatus(editingId ? 'updated' : 'registered');
-                setEditingId(null);
-                // Reset form if new, or keep/reset if edit? Resetting is safer.
-                setFormData({
-                    date: new Date().toISOString().split('T')[0],
-                    location: '',
-                    start_time: '10:00',
-                    end_time: '17:00'
-                });
-                fetchOpenings();
+            if (editingId) {
+                await db.updateOpening(editingId, formData);
+                setStatus('updated');
             } else {
-                setStatus('error');
+                await db.addOpening(formData);
+                setStatus('registered');
             }
+            setEditingId(null);
+            setFormData({
+                date: new Date().toISOString().split('T')[0],
+                location: '',
+                start_time: '10:00',
+                end_time: '17:00'
+            });
+            fetchOpenings();
         } catch (error) {
             console.error(error);
             setStatus('error');
         }
     };
 
-    const handleEdit = (op: Opening) => {
+    const handleEdit = (op: db.Opening) => {
         setEditingId(op.id);
         setFormData({
             date: op.date,
@@ -84,7 +61,7 @@ export const RegisterOpening: React.FC = () => {
             start_time: op.start_time,
             end_time: op.end_time
         });
-        setStatus(null); // Clear status message
+        setStatus(null);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -102,7 +79,7 @@ export const RegisterOpening: React.FC = () => {
     const handleDelete = async (id: number) => {
         if (!window.confirm('この出店予定を削除しますか？\n関連する売上・経費データも削除されます。')) return;
         try {
-            await fetch(`http://localhost:3001/api/openings/${id}`, { method: 'DELETE' });
+            await db.deleteOpening(id);
             fetchOpenings();
         } catch (e) { console.error(e); }
     };
