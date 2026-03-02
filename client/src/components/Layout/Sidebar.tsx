@@ -25,50 +25,74 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             />
 
             <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+                {/* Logo */}
                 <div style={{
-                    padding: '24px',
-                    fontSize: '22px',
-                    fontWeight: 'bold',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
+                    padding: '20px 20px 16px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    justifyContent: 'space-between'
+                    gap: '9px',
+                    borderBottom: '1px solid rgba(255,255,255,0.08)',
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Truck size={28} />
-                        <div>出店ノート</div>
-                    </div>
+                    <Truck size={20} style={{ opacity: 0.85 }} />
+                    <span style={{ fontSize: '15px', fontWeight: 700, letterSpacing: '0.02em' }}>
+                        出店ノート
+                    </span>
                 </div>
-                <nav style={{ flex: 1, padding: '16px' }}>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+                {/* Nav */}
+                <nav style={{ flex: 1, padding: '12px 10px' }}>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '3px' }}>
                         {navItems.map((item) => (
                             <li key={item.to}>
                                 <NavLink
                                     to={item.to}
-                                    onClick={onClose} // Close sidebar on navigation on mobile
+                                    end={item.to === '/'}
+                                    onClick={onClose}
                                     style={({ isActive }) => ({
                                         display: 'flex',
                                         alignItems: 'center',
-                                        padding: '14px 16px',
+                                        padding: '9px 12px',
                                         borderRadius: '8px',
                                         textDecoration: 'none',
-                                        color: isActive ? 'var(--color-primary)' : 'rgba(255,255,255,0.9)',
-                                        backgroundColor: isActive ? 'white' : 'transparent',
-                                        transition: 'all 0.2s',
-                                        fontSize: '18px', // Large font for visibility
-                                        fontWeight: isActive ? 600 : 500
+                                        color: isActive ? '#ffffff' : 'rgba(255,255,255,0.65)',
+                                        backgroundColor: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
+                                        transition: 'all 0.15s',
+                                        fontSize: '14px',
+                                        fontWeight: isActive ? 600 : 400,
+                                        letterSpacing: '0.01em',
                                     })}
+                                    onMouseEnter={(e) => {
+                                        const el = e.currentTarget;
+                                        if (!el.style.backgroundColor || el.style.backgroundColor === 'transparent') {
+                                            el.style.backgroundColor = 'rgba(255,255,255,0.07)';
+                                            el.style.color = 'rgba(255,255,255,0.9)';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        const el = e.currentTarget;
+                                        if (el.getAttribute('aria-current') !== 'page') {
+                                            el.style.backgroundColor = 'transparent';
+                                            el.style.color = 'rgba(255,255,255,0.65)';
+                                        }
+                                    }}
                                 >
-                                    <item.icon size={24} style={{ marginRight: '12px' }} />
+                                    <item.icon size={17} style={{ marginRight: '10px', flexShrink: 0 }} />
                                     {item.label}
                                 </NavLink>
                             </li>
                         ))}
                     </ul>
                 </nav>
-                <div style={{ padding: '24px', fontSize: '14px', opacity: 0.7, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                    <p>ログイン中: オーナー様</p>
+
+                {/* Footer */}
+                <div style={{
+                    padding: '14px 20px',
+                    fontSize: '12px',
+                    color: 'rgba(255,255,255,0.4)',
+                    borderTop: '1px solid rgba(255,255,255,0.08)',
+                    letterSpacing: '0.02em',
+                }}>
+                    オーナー様
                 </div>
             </aside>
         </>

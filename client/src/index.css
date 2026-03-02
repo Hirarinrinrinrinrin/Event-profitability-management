@@ -1,46 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-  /* Color Palette - Calm & Professional */
-  --color-primary: #004d80;
-  /* Navy */
-  --color-primary-light: #0066aa;
-  --color-primary-dark: #003355;
-  --color-secondary: #8d6e63;
-  /* Earthy Brown */
-  --color-accent: #ffb74d;
-  /* Warm Orange */
+  /* Color Palette */
+  --color-primary: #1e40af;
+  --color-primary-light: #3b82f6;
+  --color-primary-dark: #1e3a8a;
+  --color-secondary: #78716c;
+  --color-accent: #f59e0b;
 
-  --color-background: #f3f4f6;
-  /* Light Gray for main background */
+  --color-background: #f1f5f9;
   --color-surface: #ffffff;
-  /* White for cards/panels */
-  --color-sidebar: #004d80;
-  /* Navy for Sidebar */
+  --color-sidebar: #0f172a;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --color-sidebar-active: rgba(255, 255, 255, 0.12);
 
-  --color-text-main: #1f2937;
-  /* Dark Gray */
-  --color-text-sub: #4b5563;
+  --color-text-main: #0f172a;
+  --color-text-sub: #64748b;
   --color-text-inverse: #ffffff;
 
-  --color-border: #e5e7eb;
+  --color-border: #e2e8f0;
   --color-error: #ef4444;
   --color-success: #10b981;
 
-  /* Typography - Accessible & Readable */
-  --font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-  --font-size-sm: 16px;
-  --font-size-base: 18px;
-  /* Larger base size for elderly users */
-  --font-size-lg: 20px;
-  --font-size-xl: 24px;
-  --font-size-xxl: 32px;
+  /* Typography */
+  --font-family: 'Inter', 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 17px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 28px;
 
   /* Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-xxl: 48px;
+  --spacing-md: 14px;
+  --spacing-lg: 20px;
+  --spacing-xl: 28px;
+  --spacing-xxl: 40px;
 
   /* Border Radius */
   --radius-sm: 4px;
@@ -49,9 +47,9 @@
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 24px -4px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -66,6 +64,7 @@ body {
   background-color: var(--color-background);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.01em;
 }
 
 h1,
@@ -76,27 +75,36 @@ h5,
 h6 {
   margin: 0;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
 button {
   font-family: inherit;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: 7px var(--spacing-md);
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
+  gap: 6px;
+  letter-spacing: 0.02em;
 }
 
 button:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 2px solid var(--color-primary-light);
   outline-offset: 2px;
+}
+
+select,
+input,
+textarea {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
 }
 
 /* Utilities */
@@ -161,24 +169,33 @@ button:focus-visible {
   box-shadow: var(--shadow-md);
 }
 
+/* Page wrapper inside main */
+.page-container {
+  padding: var(--spacing-xl) var(--spacing-xxl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* Card */
 .card {
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border);
 }
 
-/* Sidebar & Responsive Styles */
+/* Sidebar */
 .sidebar {
-  width: 260px;
+  width: 230px;
   background-color: var(--color-sidebar);
   color: white;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   height: 100vh;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.25s ease-in-out;
   z-index: 50;
 }
 
@@ -189,7 +206,7 @@ button:focus-visible {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.45);
   z-index: 40;
 }
 
@@ -199,7 +216,7 @@ button:focus-visible {
   border: none;
   color: inherit;
   cursor: pointer;
-  padding: 8px;
+  padding: 6px;
 }
 
 /* Mobile Responsive */
@@ -219,7 +236,7 @@ button:focus-visible {
     display: block;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.25s ease;
   }
 
   .mobile-overlay.open {
@@ -235,20 +252,17 @@ button:focus-visible {
     padding: var(--spacing-md);
   }
 
-  /* Responsive Utilities */
   .table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    margin-right: -16px;
-    /* Offset parent padding for full edge scrolling */
-    padding-right: 16px;
+    margin-right: -14px;
+    padding-right: 14px;
   }
 
   table {
-    min-width: 600px;
+    min-width: 560px;
   }
 
-  /* Form Adjustments */
   form {
     flex-direction: column !important;
     align-items: stretch !important;
@@ -262,11 +276,10 @@ button:focus-visible {
     margin-left: 0 !important;
   }
 
-  /* Dashboard Header */
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start !important;
-    gap: 16px;
+    gap: 12px;
   }
 
   .dashboard-header>div {
@@ -283,7 +296,6 @@ button:focus-visible {
     justify-content: center;
   }
 
-  /* Flex containers in forms that should stack */
   .flex {
     flex-direction: column;
   }

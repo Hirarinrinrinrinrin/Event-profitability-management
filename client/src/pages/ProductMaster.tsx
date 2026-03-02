@@ -70,9 +70,9 @@ export const ProductMaster: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col gap-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '28px 32px' }}>
             <div className="card">
-                <h1>商品マスタ管理</h1>
+                <h1 style={{ fontSize: '20px' }}>商品マスタ管理</h1>
                 <p style={{ color: 'var(--color-text-sub)' }}>
                     販売する商品とその原価を登録します。
                 </p>
@@ -144,9 +144,9 @@ export const ProductMaster: React.FC = () => {
                                 {products.map((product) => {
                                     return (
                                         <tr key={product.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                            <td style={{ padding: '12px', fontSize: '18px' }}>{product.name}</td>
-                                            <td style={{ padding: '12px' }}>¥{product.cost_price.toLocaleString()}</td>
-                                            <td style={{ padding: '12px' }}>
+                                            <td style={{ padding: '9px 12px' }}>{product.name}</td>
+                                            <td style={{ padding: '9px 12px' }}>¥{product.cost_price.toLocaleString()}</td>
+                                            <td style={{ padding: '9px 12px' }}>
                                                 <button
                                                     onClick={() => handleDelete(product.id)}
                                                     style={{ padding: '8px', color: 'var(--color-error)', backgroundColor: 'transparent' }}

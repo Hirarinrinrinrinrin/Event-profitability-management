@@ -95,16 +95,16 @@ export const Settings: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col gap-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '28px 32px' }}>
             <div className="card">
-                <h1>設定</h1>
+                <h1 style={{ fontSize: '20px' }}>設定</h1>
                 <p style={{ color: 'var(--color-text-sub)' }}>
                     アプリケーションの初期化や管理を行います。
                 </p>
             </div>
 
             {/* Backup & Restore */}
-            <div className="card" style={{ borderLeft: '6px solid var(--color-primary)' }}>
+            <div className="card" style={{ borderLeft: '4px solid var(--color-primary)' }}>
                 <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)' }}>
                     <Download /> データのバックアップ・復元
                 </h2>
@@ -117,27 +117,27 @@ export const Settings: React.FC = () => {
                         onClick={handleExport}
                         className="bg-navy"
                         style={{
-                            padding: '12px 24px',
+                            padding: '8px 16px',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '8px'
+                            gap: '6px'
                         }}
                     >
                         <Download size={18} /> バックアップ (エクスポート)
                     </button>
 
                     <label style={{
-                        padding: '12px 24px',
-                        backgroundColor: '#f3f4f6',
-                        color: '#4b5563',
+                        padding: '8px 16px',
+                        backgroundColor: '#f1f5f9',
+                        color: '#64748b',
                         borderRadius: '8px',
-                        fontWeight: 'bold',
-                        border: '1px solid #d1d5db',
+                        fontWeight: 600,
+                        border: '1px solid var(--color-border)',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '8px',
-                        fontSize: '18px'
+                        gap: '6px',
+                        fontSize: '13px'
                     }}>
                         <Upload size={18} /> 復元 (インポート)
                         <input
@@ -152,7 +152,7 @@ export const Settings: React.FC = () => {
             </div>
 
             {/* Product Reset */}
-            <div className="card" style={{ borderLeft: '6px solid var(--color-error)' }}>
+            <div className="card" style={{ borderLeft: '4px solid var(--color-error)' }}>
                 <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-error)' }}>
                     <Trash2 /> 商品マスタの初期化
                 </h2>
@@ -165,9 +165,9 @@ export const Settings: React.FC = () => {
                     style={{
                         backgroundColor: '#fee2e2',
                         color: '#991b1b',
-                        padding: '12px 24px',
+                        padding: '8px 16px',
                         borderRadius: '8px',
-                        fontWeight: 'bold',
+                        fontWeight: 600,
                         border: '1px solid #fecaca'
                     }}
                 >
@@ -176,7 +176,7 @@ export const Settings: React.FC = () => {
             </div>
 
             {/* Yearly Data Reset */}
-            <div className="card" style={{ borderLeft: '6px solid var(--color-secondary)' }}>
+            <div className="card" style={{ borderLeft: '4px solid var(--color-secondary)' }}>
                 <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-secondary)' }}>
                     <AlertTriangle /> 売上・経費データの初期化
                 </h2>
@@ -188,7 +188,7 @@ export const Settings: React.FC = () => {
                     <select
                         value={selectedYearToDelete}
                         onChange={(e) => setSelectedYearToDelete(e.target.value)}
-                        style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc', minWidth: '150px' }}
+                        style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', minWidth: '140px' }}
                     >
                         <option value="">年度を選択</option>
                         {years.map(y => (
@@ -202,7 +202,7 @@ export const Settings: React.FC = () => {
                         style={{
                             backgroundColor: !selectedYearToDelete ? '#f3f4f6' : '#ffedd5',
                             color: !selectedYearToDelete ? '#9ca3af' : '#9a3412',
-                            padding: '12px 24px',
+                            padding: '8px 16px',
                             borderRadius: '8px',
                             fontWeight: 'bold',
                             border: !selectedYearToDelete ? '1px solid #e5e5e5' : '1px solid #fed7aa',
@@ -215,7 +215,7 @@ export const Settings: React.FC = () => {
             </div>
 
             {/* Start Year Selection */}
-            <div className="card" style={{ borderLeft: '6px solid var(--color-primary)' }}>
+            <div className="card" style={{ borderLeft: '4px solid var(--color-primary)' }}>
                 <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)' }}>
                     <ArrowRight /> 次の年度を開始
                 </h2>
@@ -229,7 +229,7 @@ export const Settings: React.FC = () => {
                             type="number"
                             value={startYear}
                             onChange={(e) => setStartYear(parseInt(e.target.value))}
-                            style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc', width: '100px' }}
+                            style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', width: '90px' }}
                         />
                         <span style={{ fontWeight: 'bold' }}>年度</span>
                     </div>
@@ -238,10 +238,10 @@ export const Settings: React.FC = () => {
                         onClick={handleSetStartYear}
                         className="bg-navy"
                         style={{
-                            padding: '12px 24px',
+                            padding: '8px 16px',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '8px'
+                            gap: '6px'
                         }}
                     >
                         <Save size={18} />

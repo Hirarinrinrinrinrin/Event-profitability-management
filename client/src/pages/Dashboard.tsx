@@ -35,7 +35,6 @@ export const Dashboard: React.FC = () => {
         }
     };
 
-    // Calculate Aggregates
     const totalSales = stats.reduce((sum, s) => sum + s.sales, 0);
     const totalExpenses = stats.reduce((sum, s) => sum + s.expenses, 0);
     const totalCogs = stats.reduce((sum, s) => sum + s.cogs, 0);
@@ -56,16 +55,56 @@ export const Dashboard: React.FC = () => {
         }
     };
 
-    return (
-        <div className="flex flex-col gap-8">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1>ダッシュボード</h1>
+    const kpiCards = [
+        {
+            label: '総売上',
+            value: totalSales,
+            icon: <TrendingUp size={16} />,
+            color: 'var(--color-primary)',
+            valueColor: 'var(--color-text-main)',
+        },
+        {
+            label: '総原価',
+            value: totalCogs,
+            icon: <TrendingDown size={16} />,
+            color: '#d97706',
+            valueColor: 'var(--color-text-main)',
+        },
+        {
+            label: '総経費',
+            value: totalExpenses,
+            icon: <TrendingDown size={16} />,
+            color: 'var(--color-secondary)',
+            valueColor: 'var(--color-text-main)',
+        },
+        {
+            label: '貢献利益',
+            value: totalProfit,
+            icon: <DollarSign size={16} />,
+            color: totalProfit >= 0 ? 'var(--color-success)' : 'var(--color-error)',
+            valueColor: totalProfit >= 0 ? 'var(--color-success)' : 'var(--color-error)',
+        },
+    ];
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+    return (
+        <div style={{ padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Header Row */}
+            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h1 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em' }}>ダッシュボード</h1>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <select
                         value={selectedYear}
                         onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                        style={{ padding: '8px 16px', fontSize: '18px', borderRadius: '8px', border: '1px solid #ccc' }}
+                        style={{
+                            padding: '6px 12px',
+                            fontSize: '13px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-text-main)',
+                            background: 'white',
+                            cursor: 'pointer',
+                        }}
                     >
                         {years.map(y => (
                             <option key={y.year} value={y.year}>{y.year}年度 {y.status === 'closed' ? '(済)' : ''}</option>
@@ -75,79 +114,74 @@ export const Dashboard: React.FC = () => {
 
                     {isYearClosed ? (
                         <div className="closed-badge" style={{
-                            display: 'flex', alignItems: 'center', gap: '8px',
-                            padding: '8px 16px', backgroundColor: '#e5e7eb', borderRadius: '8px', color: '#6b7280', fontWeight: 'bold'
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                            padding: '6px 12px', backgroundColor: '#f1f5f9',
+                            borderRadius: '8px', color: '#94a3b8',
+                            fontSize: '13px', fontWeight: 600,
                         }}>
-                            <Lock size={16} /> 年度締め済み
+                            <Lock size={14} /> 締め済み
                         </div>
                     ) : (
                         <button
                             onClick={handleYearClose}
                             style={{
-                                display: 'flex', alignItems: 'center', gap: '8px',
-                                padding: '8px 16px', backgroundColor: '#1f2937', color: 'white', borderRadius: '8px', cursor: 'pointer'
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                                padding: '6px 14px', backgroundColor: '#0f172a',
+                                color: 'white', borderRadius: '8px', cursor: 'pointer',
+                                fontSize: '13px',
                             }}
                         >
-                            <AlertCircle size={16} /> 年度締めを実行
+                            <AlertCircle size={14} /> 年度締めを実行
                         </button>
                     )}
                 </div>
             </div>
 
-            {/* Overview Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
-                <div className="card" style={{ borderLeft: '6px solid var(--color-primary)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                        <TrendingUp color="var(--color-primary)" />
-                        <span style={{ fontSize: '18px', color: 'var(--color-text-sub)' }}>総売上</span>
+            {/* KPI Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                {kpiCards.map((card) => (
+                    <div key={card.label} className="card" style={{
+                        borderLeft: `4px solid ${card.color}`,
+                        padding: '18px 20px',
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                            <span style={{ color: card.color, display: 'flex' }}>{card.icon}</span>
+                            <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-sub)', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
+                                {card.label}
+                            </span>
+                        </div>
+                        <div style={{ fontSize: '26px', fontWeight: 700, color: card.valueColor, letterSpacing: '-0.02em' }}>
+                            ¥{card.value.toLocaleString()}
+                        </div>
                     </div>
-                    <div style={{ fontSize: '32px', fontWeight: 'bold' }}>¥{totalSales.toLocaleString()}</div>
-                </div>
-
-                <div className="card" style={{ borderLeft: '6px solid #d48806' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                        <TrendingDown color="#d48806" />
-                        <span style={{ fontSize: '18px', color: 'var(--color-text-sub)' }}>総原価</span>
-                    </div>
-                    <div style={{ fontSize: '32px', fontWeight: 'bold' }}>¥{totalCogs.toLocaleString()}</div>
-                </div>
-
-                <div className="card" style={{ borderLeft: '6px solid var(--color-secondary)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                        <TrendingDown color="var(--color-secondary)" />
-                        <span style={{ fontSize: '18px', color: 'var(--color-text-sub)' }}>総経費</span>
-                    </div>
-                    <div style={{ fontSize: '32px', fontWeight: 'bold' }}>¥{totalExpenses.toLocaleString()}</div>
-                </div>
-
-                <div className="card" style={{ borderLeft: `6px solid ${totalProfit >= 0 ? '#10b981' : '#ef4444'}` }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                        <DollarSign color={totalProfit >= 0 ? '#10b981' : '#ef4444'} />
-                        <span style={{ fontSize: '18px', color: 'var(--color-text-sub)' }}>貢献利益</span>
-                    </div>
-                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: totalProfit >= 0 ? '#10b981' : '#ef4444' }}>
-                        ¥{totalProfit.toLocaleString()}
-                    </div>
-                </div>
+                ))}
             </div>
 
-            {/* Detail Table */}
-            <div className="card">
-                <h2>出店別サマリー</h2>
+            {/* Summary Table */}
+            <div className="card" style={{ padding: '20px 24px' }}>
+                <h2 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: 'var(--color-text-main)' }}>
+                    出店別サマリー
+                </h2>
                 {stats.length === 0 ? (
-                    <p style={{ padding: '16px' }}>データがありません。</p>
+                    <p style={{ fontSize: '13px', color: 'var(--color-text-sub)', padding: '12px 0' }}>
+                        データがありません。
+                    </p>
                 ) : (
                     <div className="table-container">
-                        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
-                                <tr style={{ borderBottom: '2px solid var(--color-border)', textAlign: 'left' }}>
-                                    <th style={{ padding: '12px' }}>日付</th>
-                                    <th style={{ padding: '12px' }}>場所</th>
-                                    <th style={{ padding: '12px' }}>状態</th>
-                                    <th style={{ padding: '12px' }}>売上</th>
-                                    <th style={{ padding: '12px' }}>原価</th>
-                                    <th style={{ padding: '12px' }}>経費</th>
-                                    <th style={{ padding: '12px' }}>利益</th>
+                                <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                    {['日付', '場所', '状態', '売上', '原価', '経費', '利益'].map(col => (
+                                        <th key={col} style={{
+                                            padding: '8px 12px',
+                                            textAlign: 'left',
+                                            fontSize: '12px',
+                                            fontWeight: 600,
+                                            color: 'var(--color-text-sub)',
+                                            letterSpacing: '0.03em',
+                                            textTransform: 'uppercase',
+                                        }}>{col}</th>
+                                    ))}
                                 </tr>
                             </thead>
                             <tbody>
@@ -156,24 +190,24 @@ export const Dashboard: React.FC = () => {
                                     const isClosed = s.status === 'closed';
                                     return (
                                         <tr key={s.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                            <td style={{ padding: '12px' }}>{s.date}</td>
-                                            <td style={{ padding: '12px' }}>{s.location}</td>
-                                            <td style={{ padding: '12px' }}>
+                                            <td style={{ padding: '10px 12px', fontSize: '13px' }}>{s.date}</td>
+                                            <td style={{ padding: '10px 12px', fontSize: '13px' }}>{s.location}</td>
+                                            <td style={{ padding: '10px 12px' }}>
                                                 <span style={{
-                                                    padding: '4px 8px',
+                                                    padding: '3px 8px',
                                                     borderRadius: '99px',
-                                                    fontSize: '12px',
-                                                    backgroundColor: isClosed ? '#9ca3af' : '#10b981',
-                                                    color: 'white',
-                                                    fontWeight: 'bold'
+                                                    fontSize: '11px',
+                                                    backgroundColor: isClosed ? '#e2e8f0' : '#d1fae5',
+                                                    color: isClosed ? '#64748b' : '#065f46',
+                                                    fontWeight: 600,
                                                 }}>
                                                     {isClosed ? '済' : '営業中'}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '12px' }}>¥{s.sales.toLocaleString()}</td>
-                                            <td style={{ padding: '12px' }}>¥{s.cogs.toLocaleString()}</td>
-                                            <td style={{ padding: '12px' }}>¥{s.expenses.toLocaleString()}</td>
-                                            <td style={{ padding: '12px', fontWeight: 'bold', color: profit >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
+                                            <td style={{ padding: '10px 12px', fontSize: '13px' }}>¥{s.sales.toLocaleString()}</td>
+                                            <td style={{ padding: '10px 12px', fontSize: '13px' }}>¥{s.cogs.toLocaleString()}</td>
+                                            <td style={{ padding: '10px 12px', fontSize: '13px' }}>¥{s.expenses.toLocaleString()}</td>
+                                            <td style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 600, color: profit >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
                                                 ¥{profit.toLocaleString()}
                                             </td>
                                         </tr>

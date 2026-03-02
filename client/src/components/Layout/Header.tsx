@@ -6,31 +6,46 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short',
+    });
+
     return (
         <header style={{
-            height: '64px',
+            height: '54px',
             backgroundColor: 'white',
             borderBottom: '1px solid var(--color-border)',
             display: 'flex',
             alignItems: 'center',
-            padding: '0 32px',
+            padding: '0 28px',
             justifyContent: 'space-between',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            flexShrink: 0,
         }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                 <button className="menu-button" onClick={onMenuClick}>
-                    <Menu />
+                    <Menu size={20} />
                 </button>
-                <h2 style={{ fontSize: '20px', margin: 0, color: 'var(--color-text-sub)' }}>
-                    {/* Dynamic Title could go here based on Route */}
+                <span style={{
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: 'var(--color-text-sub)',
+                    letterSpacing: '0.03em',
+                }}>
                     管理画面
-                </h2>
+                </span>
             </div>
-            <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-                <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '14px', color: 'var(--color-text-sub)' }}>現在日時</div>
-                    <div style={{ fontWeight: 'bold' }}>2026年1月23日 (金)</div>
-                </div>
+            <div style={{
+                fontSize: '13px',
+                color: 'var(--color-text-sub)',
+                fontWeight: 500,
+                letterSpacing: '0.01em',
+            }}>
+                {dateStr}
             </div>
         </header>
     );

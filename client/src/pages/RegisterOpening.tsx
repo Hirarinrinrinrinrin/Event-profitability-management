@@ -85,10 +85,10 @@ export const RegisterOpening: React.FC = () => {
     };
 
     return (
-        <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px', padding: '28px 32px' }}>
             <div className="card">
-                <h1>出店登録</h1>
-                <p style={{ marginBottom: '24px', color: 'var(--color-text-sub)' }}>
+                <h1 style={{ fontSize: '20px' }}>出店登録</h1>
+                <p style={{ marginTop: '6px', marginBottom: '20px', fontSize: '13px', color: 'var(--color-text-sub)' }}>
                     新しい出店スケジュールを登録します。
                 </p>
 
@@ -113,7 +113,7 @@ export const RegisterOpening: React.FC = () => {
                             value={formData.date}
                             onChange={handleChange}
                             required
-                            style={{ padding: '12px', fontSize: '18px', borderRadius: '8px', border: '1px solid var(--color-border)' }}
+                            style={{ padding: '9px 11px', borderRadius: '8px', border: '1px solid var(--color-border)', width: '100%' }}
                         />
                     </div>
 
@@ -126,7 +126,7 @@ export const RegisterOpening: React.FC = () => {
                             onChange={handleChange}
                             placeholder="例: OO公園イベント"
                             required
-                            style={{ padding: '12px', fontSize: '18px', borderRadius: '8px', border: '1px solid var(--color-border)' }}
+                            style={{ padding: '9px 11px', borderRadius: '8px', border: '1px solid var(--color-border)', width: '100%' }}
                         />
                     </div>
 
@@ -138,7 +138,7 @@ export const RegisterOpening: React.FC = () => {
                                 name="start_time"
                                 value={formData.start_time}
                                 onChange={handleChange}
-                                style={{ padding: '12px', fontSize: '18px', borderRadius: '8px', border: '1px solid var(--color-border)' }}
+                                style={{ padding: '9px 11px', borderRadius: '8px', border: '1px solid var(--color-border)', width: '100%' }}
                             />
                         </div>
                         <div className="flex flex-col flex-1" style={{ gap: '8px' }}>
@@ -148,19 +148,19 @@ export const RegisterOpening: React.FC = () => {
                                 name="end_time"
                                 value={formData.end_time}
                                 onChange={handleChange}
-                                style={{ padding: '12px', fontSize: '18px', borderRadius: '8px', border: '1px solid var(--color-border)' }}
+                                style={{ padding: '9px 11px', borderRadius: '8px', border: '1px solid var(--color-border)', width: '100%' }}
                             />
                         </div>
                     </div>
 
-                    <button type="submit" className="bg-navy" style={{ marginTop: '16px', padding: '16px', fontSize: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                    <button type="submit" className="bg-navy" style={{ marginTop: '12px', padding: '9px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
                         {editingId ? <><Edit2 /> 更新する</> : '登録する'}
                     </button>
                     {editingId && (
                         <button
                             type="button"
                             onClick={handleCancelEdit}
-                            style={{ padding: '16px', fontSize: '18px', backgroundColor: '#f3f4f6', color: '#4b5563', borderRadius: '8px', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+                            style={{ padding: '9px 16px', backgroundColor: '#f1f5f9', color: '#64748b', borderRadius: '8px', border: '1px solid var(--color-border)', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
                         >
                             <X /> キャンセル
                         </button>
@@ -175,15 +175,15 @@ export const RegisterOpening: React.FC = () => {
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
                         {openings.map(op => (
-                            <div key={op.id} style={{ padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
-                                <div style={{ fontWeight: 'bold', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <Calendar size={18} /> {op.date}
+                            <div key={op.id} style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', backgroundColor: '#f8fafc' }}>
+                                <div style={{ fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <Calendar size={15} /> {op.date}
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px', color: '#4b5563' }}>
-                                    <MapPin size={16} /> {op.location}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px', color: 'var(--color-text-sub)', fontSize: '13px' }}>
+                                    <MapPin size={13} /> {op.location}
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px', color: '#4b5563' }}>
-                                    <Clock size={16} /> {op.start_time} - {op.end_time}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px', color: 'var(--color-text-sub)', fontSize: '13px' }}>
+                                    <Clock size={13} /> {op.start_time} - {op.end_time}
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '8px', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
