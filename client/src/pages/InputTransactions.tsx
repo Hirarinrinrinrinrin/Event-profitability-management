@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, MinusCircle, Trash2, User, Fuel, Store, HelpCircle, Lock, CheckCircle } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import * as db from '../db';
 
 const EXPENSE_CATEGORIES = [
@@ -12,6 +12,8 @@ const EXPENSE_CATEGORIES = [
 
 export const InputTransactions: React.FC = () => {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const isEditMode = !!searchParams.get('id');
     const [openings, setOpenings] = useState<db.Opening[]>([]);
     const [products, setProducts] = useState<db.Product[]>([]);
     const [selectedOpeningId, setSelectedOpeningId] = useState<string>('');
@@ -300,19 +302,35 @@ export const InputTransactions: React.FC = () => {
                             <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{currentOpening.date} @ {currentOpening.location}</span>
                         </div>
 
-                        {!isClosed && (
-                            <button
-                                onClick={handleCloseEvent}
-                                style={{
-                                    backgroundColor: '#1f2937',
-                                    color: 'white',
-                                    padding: '10px 20px',
-                                    borderRadius: '8px',
-                                    display: 'flex', alignItems: 'center', gap: '8px'
-                                }}>
-                                <Lock size={16} /> 本日の営業を締める
-                            </button>
-                        )}
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {isEditMode && (
+                                <button
+                                    onClick={() => navigate('/')}
+                                    style={{
+                                        backgroundColor: '#0f172a',
+                                        color: 'white',
+                                        padding: '10px 20px',
+                                        borderRadius: '8px',
+                                        display: 'flex', alignItems: 'center', gap: '8px',
+                                        fontWeight: 'bold',
+                                    }}>
+                                    <CheckCircle size={16} /> 修正登録
+                                </button>
+                            )}
+                            {!isClosed && (
+                                <button
+                                    onClick={handleCloseEvent}
+                                    style={{
+                                        backgroundColor: '#1f2937',
+                                        color: 'white',
+                                        padding: '10px 20px',
+                                        borderRadius: '8px',
+                                        display: 'flex', alignItems: 'center', gap: '8px'
+                                    }}>
+                                    <Lock size={16} /> 本日の営業を締める
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {/* Summary Board */}
