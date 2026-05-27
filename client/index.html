@@ -36,6 +36,13 @@
             caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
           }
         } else {
+          // 新しいSWが制御を引き継いだら自動でリロードして最新コードに更新する
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
+          });
           window.addEventListener('load', () => {
             navigator.serviceWorker
               .register('/Event-profitability-management/sw.js')
