@@ -267,9 +267,9 @@ export const InputTransactions: React.FC = () => {
                         style={{ padding: '12px', fontSize: '18px', width: '100%', maxWidth: '400px', borderRadius: '8px', border: '1px solid var(--color-border)' }}
                     >
                         <option value="">選択してください</option>
-                        {openings.map(op => (
+                        {openings.filter(op => op.status !== 'closed').map(op => (
                             <option key={op.id} value={op.id}>
-                                {op.date} - {op.location}{op.status === 'closed' ? ' (済)' : ''}
+                                {op.date} - {op.location}
                             </option>
                         ))}
                     </select>
@@ -331,7 +331,8 @@ export const InputTransactions: React.FC = () => {
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+                    {!isClosed ? (
+                        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
                             {/* Sales Input */}
                             <div className="card flex-1" style={{ minWidth: '300px' }}>
                                 <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)' }}>
@@ -635,6 +636,13 @@ export const InputTransactions: React.FC = () => {
                                 </form>
                             </div>
                         </div>
+                    ) : (
+                        <div className="card" style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                            <Lock size={48} style={{ margin: '0 auto 16px', color: '#9ca3af' }} />
+                            <h2>この出店は締め済みです</h2>
+                            <p>売上や経費の追加・編集はできません。</p>
+                        </div>
+                    )}
 
                     {/* Transaction History */}
                     <div className="card">
@@ -671,13 +679,15 @@ export const InputTransactions: React.FC = () => {
                                             ¥{(t.amount * (t.quantity || 1)).toLocaleString()}
                                         </td>
                                         <td style={{ padding: '10px' }}>
-                                            <button
-                                                onClick={() => handleDelete(t.id)}
-                                                style={{ padding: '8px', color: 'var(--color-error)', backgroundColor: 'transparent' }}
-                                                title="削除"
-                                            >
-                                                <Trash2 size={20} />
-                                            </button>
+                                            {!isClosed && (
+                                                <button
+                                                    onClick={() => handleDelete(t.id)}
+                                                    style={{ padding: '8px', color: 'var(--color-error)', backgroundColor: 'transparent' }}
+                                                    title="削除"
+                                                >
+                                                    <Trash2 size={20} />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

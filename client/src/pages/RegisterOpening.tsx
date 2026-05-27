@@ -20,7 +20,7 @@ export const RegisterOpening: React.FC = () => {
     const fetchOpenings = async () => {
         try {
             const data = await db.getOpenings();
-            setOpenings(data);
+            setOpenings(data.filter(op => op.status !== 'closed'));
         } catch (e) { console.error(e); }
     };
 
@@ -169,7 +169,7 @@ export const RegisterOpening: React.FC = () => {
             </div>
 
             <div className="card">
-                <h2>登録済み出店一覧</h2>
+                <h2>登録済み出店予定 (未締め)</h2>
                 {openings.length === 0 ? (
                     <p style={{ color: '#666' }}>予定されている出店はありません。</p>
                 ) : (
@@ -178,11 +178,6 @@ export const RegisterOpening: React.FC = () => {
                             <div key={op.id} style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', backgroundColor: '#f8fafc' }}>
                                 <div style={{ fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     <Calendar size={15} /> {op.date}
-                                    {op.status === 'closed' && (
-                                        <span style={{ marginLeft: '4px', padding: '2px 8px', borderRadius: '99px', fontSize: '11px', backgroundColor: '#e2e8f0', color: '#64748b', fontWeight: 600 }}>
-                                            締め済み
-                                        </span>
-                                    )}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px', color: 'var(--color-text-sub)', fontSize: '13px' }}>
                                     <MapPin size={13} /> {op.location}
