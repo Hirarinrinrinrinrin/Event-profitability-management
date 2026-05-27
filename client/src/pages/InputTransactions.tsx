@@ -13,8 +13,8 @@ const EXPENSE_CATEGORIES = [
 export const InputTransactions: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const idFromUrl = new URLSearchParams(location.search).get('id');
-    const isEditMode = !!idFromUrl;
+    const editId: number | undefined = (location.state as { editId?: number } | null)?.editId;
+    const isEditMode = !!editId;
     const [openings, setOpenings] = useState<db.Opening[]>([]);
     const [products, setProducts] = useState<db.Product[]>([]);
     const [selectedOpeningId, setSelectedOpeningId] = useState<string>('');
@@ -59,7 +59,7 @@ export const InputTransactions: React.FC = () => {
         try {
             const data = await db.getOpenings();
             setOpenings(data);
-            if (idFromUrl) setSelectedOpeningId(idFromUrl);
+            if (editId) setSelectedOpeningId(String(editId));
         } catch (e) {
             console.error(e);
         }
