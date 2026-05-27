@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Lock, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Lock, AlertCircle, Edit2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import * as db from '../db';
 
 export const Dashboard: React.FC = () => {
+    const navigate = useNavigate();
     const [stats, setStats] = useState<db.OpeningStats[]>([]);
     const [years, setYears] = useState<db.YearStatus[]>([]);
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
@@ -171,7 +173,7 @@ export const Dashboard: React.FC = () => {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                    {['日付', '場所', '状態', '売上', '原価', '経費', '利益'].map(col => (
+                                    {['日付', '場所', '状態', '売上', '原価', '経費', '利益', ''].map(col => (
                                         <th key={col} style={{
                                             padding: '8px 12px',
                                             textAlign: 'left',
@@ -209,6 +211,14 @@ export const Dashboard: React.FC = () => {
                                             <td style={{ padding: '10px 12px', fontSize: '13px' }}>¥{s.expenses.toLocaleString()}</td>
                                             <td style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 600, color: profit >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
                                                 ¥{profit.toLocaleString()}
+                                            </td>
+                                            <td style={{ padding: '10px 12px' }}>
+                                                <button
+                                                    onClick={() => navigate(`/input?id=${s.id}`)}
+                                                    style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', fontSize: '12px', borderRadius: '6px', border: '1px solid var(--color-border)', background: 'white', cursor: 'pointer', color: 'var(--color-text-main)' }}
+                                                >
+                                                    <Edit2 size={12} /> 編集
+                                                </button>
                                             </td>
                                         </tr>
                                     );
