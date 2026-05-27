@@ -8,6 +8,7 @@ export const Dashboard: React.FC = () => {
     const [stats, setStats] = useState<db.OpeningStats[]>([]);
     const [years, setYears] = useState<db.YearStatus[]>([]);
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState<number>(0); // 0 = すべての月
 
     useEffect(() => {
         fetchYears();
@@ -15,6 +16,7 @@ export const Dashboard: React.FC = () => {
 
     useEffect(() => {
         fetchStats();
+        setSelectedMonth(0);
     }, [selectedYear]);
 
     const fetchYears = async () => {
@@ -37,9 +39,13 @@ export const Dashboard: React.FC = () => {
         }
     };
 
-    const totalSales = stats.reduce((sum, s) => sum + s.sales, 0);
-    const totalExpenses = stats.reduce((sum, s) => sum + s.expenses, 0);
-    const totalCogs = stats.reduce((sum, s) => sum + s.cogs, 0);
+    const visibleStats = selectedMonth === 0
+        ? stats
+        : stats.filter(s => new Date(s.date).getMonth() + 1 === selectedMonth);
+
+    const totalSales = visibleStats.reduce((sum, s) => sum + s.sales, 0);
+    const totalExpenses = visibleStats.reduce((sum, s) => sum + s.expenses, 0);
+    const totalCogs = visibleStats.reduce((sum, s) => sum + s.cogs, 0);
     const totalProfit = totalSales - totalCogs - totalExpenses;
 
     const currentYearStatus = years.find(y => y.year === selectedYear)?.status;
@@ -114,6 +120,25 @@ export const Dashboard: React.FC = () => {
                         {years.length === 0 && <option value={new Date().getFullYear()}>{new Date().getFullYear()}年度</option>}
                     </select>
 
+                    <select
+                        value={selectedMonth}
+                        onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                        style={{
+                            padding: '6px 12px',
+                            fontSize: '13px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-text-main)',
+                            background: 'white',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        <option value={0}>すべての月</option>
+                        {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
+                            <option key={m} value={m}>{m}月</option>
+                        ))}
+                    </select>
+
                     {isYearClosed ? (
                         <div className="closed-badge" style={{
                             display: 'flex', alignItems: 'center', gap: '6px',
@@ -164,7 +189,7 @@ export const Dashboard: React.FC = () => {
                 <h2 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: 'var(--color-text-main)' }}>
                     出店別サマリー
                 </h2>
-                {stats.length === 0 ? (
+                {visibleStats.length === 0 ? (
                     <p style={{ fontSize: '13px', color: 'var(--color-text-sub)', padding: '12px 0' }}>
                         データがありません。
                     </p>
@@ -187,7 +212,7 @@ export const Dashboard: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {stats.map((s) => {
+                                {visibleStats.map((s) => {
                                     const profit = s.sales - s.cogs - s.expenses;
                                     const isClosed = s.status === 'closed';
                                     return (
