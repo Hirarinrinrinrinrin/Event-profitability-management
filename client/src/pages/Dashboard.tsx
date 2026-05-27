@@ -214,7 +214,7 @@ export const Dashboard: React.FC = () => {
                                             </td>
                                             <td style={{ padding: '10px 12px' }}>
                                                 <button
-                                                    onClick={() => navigate('/input', { state: { editId: s.id } })}
+                                                    onClick={() => navigate(`/input?id=${s.id}`)}
                                                     style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', fontSize: '12px', borderRadius: '6px', border: '1px solid var(--color-border)', background: 'white', cursor: 'pointer', color: 'var(--color-text-main)' }}
                                                 >
                                                     <Edit2 size={12} /> 編集

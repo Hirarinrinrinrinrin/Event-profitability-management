@@ -13,7 +13,17 @@ const EXPENSE_CATEGORIES = [
 export const InputTransactions: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const editId: number | undefined = (location.state as { editId?: number } | null)?.editId;
+    // HashRouter(v7)では location.search にハッシュ内クエリが展開されないため、
+    // 生のハッシュ文字列(#/input?id=1)から id を直接パースする。
+    const editId = (() => {
+        const h = window.location.hash;
+        const qi = h.indexOf('?');
+        if (qi >= 0) {
+            const id = new URLSearchParams(h.slice(qi)).get('id');
+            if (id) return id;
+        }
+        return new URLSearchParams(location.search).get('id') ?? undefined;
+    })();
     const isEditMode = !!editId;
     const [openings, setOpenings] = useState<db.Opening[]>([]);
     const [products, setProducts] = useState<db.Product[]>([]);
@@ -59,7 +69,7 @@ export const InputTransactions: React.FC = () => {
         try {
             const data = await db.getOpenings();
             setOpenings(data);
-            if (editId) setSelectedOpeningId(String(editId));
+            if (editId) setSelectedOpeningId(editId);
         } catch (e) {
             console.error(e);
         }
