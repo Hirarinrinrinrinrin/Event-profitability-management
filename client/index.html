@@ -25,16 +25,28 @@
     <!-- Service Worker Registration -->
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker
-            .register('/Event-profitability-management/sw.js')
-            .then((registration) => {
-              console.log('SW registered:', registration.scope);
-            })
-            .catch((error) => {
-              console.log('SW registration failed:', error);
-            });
-        });
+        const isLocalhost = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+        if (isLocalhost) {
+          // 開発時はSWを使わない。古いキャッシュを配信し続ける事故を防ぐため、
+          // 既存のSWを解除しキャッシュも削除する。
+          navigator.serviceWorker.getRegistrations().then((regs) => {
+            regs.forEach((r) => r.unregister());
+          });
+          if (window.caches) {
+            caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+          }
+        } else {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker
+              .register('/Event-profitability-management/sw.js')
+              .then((registration) => {
+                console.log('SW registered:', registration.scope);
+              })
+              .catch((error) => {
+                console.log('SW registration failed:', error);
+              });
+          });
+        }
       }
     </script>
   </body>
