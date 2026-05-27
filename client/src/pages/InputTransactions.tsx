@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, MinusCircle, Trash2, User, Fuel, Store, HelpCircle, Lock, CheckCircle } from 'lucide-react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import * as db from '../db';
 
 const EXPENSE_CATEGORIES = [
@@ -11,9 +11,10 @@ const EXPENSE_CATEGORIES = [
 ];
 
 export const InputTransactions: React.FC = () => {
-    const [searchParams] = useSearchParams();
+    const location = useLocation();
     const navigate = useNavigate();
-    const isEditMode = !!searchParams.get('id');
+    const idFromUrl = new URLSearchParams(location.search).get('id');
+    const isEditMode = !!idFromUrl;
     const [openings, setOpenings] = useState<db.Opening[]>([]);
     const [products, setProducts] = useState<db.Product[]>([]);
     const [selectedOpeningId, setSelectedOpeningId] = useState<string>('');
@@ -58,7 +59,6 @@ export const InputTransactions: React.FC = () => {
         try {
             const data = await db.getOpenings();
             setOpenings(data);
-            const idFromUrl = searchParams.get('id');
             if (idFromUrl) setSelectedOpeningId(idFromUrl);
         } catch (e) {
             console.error(e);
